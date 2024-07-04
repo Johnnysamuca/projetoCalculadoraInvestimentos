@@ -1,4 +1,4 @@
-function convertToMonthlyReturnRate(yearlyReturnRate) {
+function convertToMontlyReturnRate(yearlyReturnRate) {
   return yearlyReturnRate ** (1 / 12);
 }
 
@@ -12,28 +12,27 @@ export function generateReturnsArray(
 ) {
   if (!timeHorizon || !startingAmount) {
     throw new Error(
-      "Investimento Inicial e prazo precisam receber valores positivos"
+      "Investimento inicial e prazo devem ser preenchidos com valores positivos."
     );
   }
 
   const finalReturnRate =
     returnTimeFrame === "monthly"
       ? 1 + returnRate / 100
-      : convertToMonthlyReturnRate(1 + returnRate / 100);
+      : convertToMontlyReturnRate(1 + returnRate / 100);
 
   const finalTimeHorizon =
-    timePeriod === "monthly" ? timePeriod : timePeriod * 12;
+    timePeriod === "monthly" ? timeHorizon : timeHorizon * 12;
 
   const referenceInvestmentObject = {
     investedAmount: startingAmount,
     interestReturns: 0,
-    totalInterestReturn: 0,
+    totalInterestReturns: 0,
     month: 0,
     totalAmount: startingAmount,
   };
 
   const returnsArray = [referenceInvestmentObject];
-
   for (
     let timeReference = 1;
     timeReference <= finalTimeHorizon;
@@ -42,20 +41,16 @@ export function generateReturnsArray(
     const totalAmount =
       returnsArray[timeReference - 1].totalAmount * finalReturnRate +
       monthlyContribution;
-
-    const interestReturn =
-      returnsArray[timeReference - 1].totalAmount * finalReturnRate;
-
+    const interestReturns =
+      returnsArray[timeReference - 1].totalAmount * (finalReturnRate - 1);
     const investedAmount = startingAmount + monthlyContribution * timeReference;
-
     const totalInterestReturns = totalAmount - investedAmount;
-
     returnsArray.push({
-      investedAmount: investedAmount,
-      interestReturns: interestReturn,
-      totalInterestReturn: totalInterestReturns,
+      investedAmount,
+      interestReturns,
+      totalInterestReturns,
       month: timeReference,
-      totalAmount: totalAmount,
+      totalAmount,
     });
   }
 
